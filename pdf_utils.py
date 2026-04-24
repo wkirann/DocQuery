@@ -1,0 +1,20 @@
+import fitz  # PyMuPDF
+
+def extract_text(pdf_file):
+    text = ""
+    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+
+    for page in doc:
+        text += page.get_text()
+
+    return text
+
+
+def chunk_text(text, chunk_size=500, overlap=100):
+    chunks = []
+
+    for i in range(0, len(text), chunk_size - overlap):
+        chunk = text[i:i + chunk_size]
+        chunks.append(chunk)
+
+    return chunks
