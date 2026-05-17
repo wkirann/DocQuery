@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Workspace — DocQuery{% endblock %}
+{% block content %}
+<div class="layout">
+  <aside class="sidebar" aria-label="Document">
+    <section class="panel">
+      <h2 class="panel-title">Document</h2>
+      <form id="upload-form" class="stack" enctype="multipart/form-data">
+        <label class="field-label" for="pdf">Upload or replace PDF</label>
+        <input type="file" id="pdf" name="file" accept=".pdf" class="file-input" />
+        <button type="submit" class="btn btn-primary" id="upload-btn">Index document</button>
+        <p id="upload-status" class="field-hint" role="status"></p>
+      </form>
+    </section>
+
+    <section class="panel hidden" id="doc-panel">
+      <h2 class="panel-title">Active file</h2>
+      <dl class="stat-list" id="doc-stats"></dl>
+      <div class="panel-actions">
+        <button type="button" class="btn btn-danger-ghost" id="remove-doc-btn">Remove document</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Retrieval depth</h2>
+      <p class="panel-lead">Number of segments combined into the prompt context.</p>
+      <label class="field-label" for="retrieval-k">Segments</label>
+      <div class="slider-row">
+        <input type="range" id="retrieval-k" name="retrieval_k" min="1" max="12" value="5" />
+        <output id="retrieval-k-out" for="retrieval-k">5</output>
+      </div>
+      <p class="field-hint">Increase for broader coverage; decrease for faster, tighter answers.</p>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-toolbar">
+      <div class="toolbar-left">
+        <h1 class="main-heading" id="main-heading">No document loaded</h1>
+        <p class="main-lead" id="main-lead">Open the Index page for corpus statistics, or upload a PDF here to begin.</p>
+      </div>
+      <div class="toolbar-actions hidden" id="toolbar-actions">
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" id="export-md-btn" title="Markdown export">Export .md</button>
+          <button type="button" class="btn btn-secondary" id="export-txt-btn" title="Plain text export">Export .txt</button>
+        </div>
+        <button type="button" class="btn btn-secondary" id="clear-btn">Clear conversation</button>
+      </div>
+    </div>
+
+    <div id="empty-state" class="empty-state">
+      <div class="empty-card">
+        <h2 class="empty-title">Start a session</h2>
+        <ol class="empty-steps">
+          <li>Select a PDF in the left column.</li>
+          <li>Run <strong>Index document</strong> and wait for embeddings to finish.</li>
+          <li>Ask natural-language questions; use Summarize or Suggested questions when useful.</li>
+        </ol>
+        <p class="empty-note">Responses are grounded in retrieved segments. Validate important facts in the source file.</p>
+      </div>
+    </div>
+
+    <div id="chat-panel" class="chat-shell hidden">
+      <div id="messages" class="messages" aria-live="polite" aria-relevant="additions"></div>
+      <div class="chat-footer">
+        <div class="quick-actions">
+          <button type="button" class="btn btn-secondary" id="summarize-btn">Summarize</button>
+          <button type="button" class="btn btn-secondary" id="suggest-btn">Suggested questions</button>
+        </div>
+        <form id="chat-form" class="composer">
+          <label class="visually-hidden" for="query">Your question</label>
+          <textarea
+            id="query"
+            name="query"
+            rows="1"
+            placeholder="Ask something about this document…"
+            autocomplete="off"
+            maxlength="4000"
+          ></textarea>
+          <button type="submit" class="btn btn-primary" id="send-btn">Send</button>
+        </form>
+        <p id="busy-line" class="busy-line hidden" aria-live="polite">Processing…</p>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='workspace.js') }}" defer></script>
+{% endblock %}

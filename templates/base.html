@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta id="meta-theme-color" name="theme-color" content="#ffffff" />
+  <title>{% block title %}DocQuery{% endblock %}</title>
+  <script>
+    (function () {
+      try {
+        var k = "docquery-theme";
+        var t = localStorage.getItem(k);
+        if (t === "dark" || t === "light") {
+          document.documentElement.setAttribute("data-theme", t);
+        } else if (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <a href="{{ url_for('dashboard') }}" class="brand-link">
+          <span class="logo" aria-hidden="true"></span>
+          <div class="topbar-brand-text">
+            <span class="topbar-title">DocQuery</span>
+            <span class="topbar-tagline">Local document Q&amp;A</span>
+          </div>
+        </a>
+      </div>
+      <nav class="nav-primary" aria-label="Main">
+        <a href="{{ url_for('dashboard') }}" class="nav-link{% if active_nav == 'dashboard' %} is-active{% endif %}">Overview</a>
+        <a href="{{ url_for('workspace') }}" class="nav-link{% if active_nav == 'workspace' %} is-active{% endif %}">Workspace</a>
+        <a href="{{ url_for('library') }}" class="nav-link{% if active_nav == 'library' %} is-active{% endif %}">Index</a>
+        <a href="{{ url_for('docs') }}" class="nav-link{% if active_nav == 'docs' %} is-active{% endif %}">Architecture</a>
+        <a href="{{ url_for('settings_page') }}" class="nav-link{% if active_nav == 'settings' %} is-active{% endif %}">Settings</a>
+      </nav>
+      <div class="topbar-meta">
+        <div class="theme-switch" role="group" aria-label="Appearance">
+          <button type="button" class="btn btn-secondary btn-compact theme-btn" id="theme-light" aria-pressed="false">Light</button>
+          <button type="button" class="btn btn-secondary btn-compact theme-btn" id="theme-dark" aria-pressed="false">Dark</button>
+        </div>
+        {% if show_health_pill %}
+        <span class="pill pill-muted" id="health-pill" title="Ollama service">…</span>
+        {% endif %}
+        <span class="version" title="Build">v{{ app_version }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="main" class="page-wrap">
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="site-footer-meta">DocQuery · local RAG · FAISS · Sentence Transformers · Ollama</p>
+    </div>
+  </footer>
+
+  <div id="toast-region" class="toast-region" aria-live="assertive"></div>
+
+  {% block modals %}
+  <div id="modal-overlay" class="modal-overlay hidden" role="presentation"></div>
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title" class="modal-title">Confirm</h2>
+    <p id="modal-body" class="modal-body"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+  {% endblock %}
+
+  <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

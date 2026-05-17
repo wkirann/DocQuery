@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Overview — DocQuery{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <h1 class="page-title">Overview</h1>
+  <p class="page-subtitle">Session snapshot for your local RAG workspace.</p>
+</section>
+
+<div class="card-grid">
+  <article class="card">
+    <h2 class="card-title">Document</h2>
+    <p class="card-value" id="dash-doc-status">Loading…</p>
+    <p class="card-meta" id="dash-doc-name"></p>
+    <a class="card-action" href="{{ url_for('workspace') }}">Open workspace →</a>
+  </article>
+  <article class="card">
+    <h2 class="card-title">Conversation</h2>
+    <p class="card-value" id="dash-msg-count">—</p>
+    <p class="card-meta">Messages in this browser session</p>
+    <a class="card-action" href="{{ url_for('library') }}">View index details →</a>
+  </article>
+  <article class="card">
+    <h2 class="card-title">Retrieval</h2>
+    <p class="card-value" id="dash-retrieval-k">—</p>
+    <p class="card-meta">Segments sent to the model per query</p>
+    <a class="card-action" href="{{ url_for('settings_page') }}">Adjust in settings →</a>
+  </article>
+</div>
+
+<section class="panel panel-wide">
+  <h2 class="panel-title">Next steps</h2>
+  <ul class="link-list">
+    <li><a href="{{ url_for('workspace') }}">Workspace</a> — index a PDF and chat.</li>
+    <li><a href="{{ url_for('library') }}">Index</a> — inspect chunk statistics and a sample segment.</li>
+    <li><a href="{{ url_for('docs') }}">Architecture</a> — how retrieval and generation connect.</li>
+  </ul>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+{% endblock %}

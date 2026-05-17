@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Index — DocQuery{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <h1 class="page-title">Index &amp; corpus</h1>
+  <p class="page-subtitle">FAISS vector index and text segments derived from your PDF.</p>
+</section>
+
+{% if not indexed or not doc %}
+<div class="empty-inline">
+  <p>No document indexed in this session. <a href="{{ url_for('workspace') }}">Go to Workspace</a> to upload a PDF.</p>
+</div>
+{% else %}
+<div class="card-grid card-grid-2">
+  <article class="card">
+    <h2 class="card-title">File</h2>
+    <dl class="stat-list stat-list-block">
+      <dt>Name</dt><dd>{{ doc.filename }}</dd>
+      <dt>Pages</dt><dd>{{ doc.page_count }}</dd>
+      <dt>Characters (cleaned)</dt><dd>{{ doc.char_count }}</dd>
+      <dt>Chunks</dt><dd>{{ doc.chunk_count }}</dd>
+    </dl>
+  </article>
+  <article class="card">
+    <h2 class="card-title">Vectors</h2>
+    <dl class="stat-list stat-list-block">
+      <dt>Embedding model</dt><dd><code>{{ embed_model }}</code></dd>
+      <dt>Vector dimension</dt><dd>{{ vector_dim }}</dd>
+      <dt>Mean chunk length</dt><dd>{{ "%.0f"|format(avg_chunk_len) }} chars</dd>
+    </dl>
+  </article>
+</div>
+
+<section class="panel panel-wide">
+  <h2 class="panel-title">Sample segment (first chunk)</h2>
+  <pre class="code-preview">{{ chunk_sample }}</pre>
+</section>
+{% endif %}
+{% endblock %}

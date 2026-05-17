@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Settings — DocQuery{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <h1 class="page-title">Settings</h1>
+  <p class="page-subtitle">Models, connectivity, and appearance.</p>
+</section>
+
+<div class="card-grid card-grid-2">
+  <article class="card">
+    <h2 class="card-title">Embedding model</h2>
+    <p><code class="inline-code">{{ embed_model }}</code></p>
+    <p class="card-meta">Loaded at server start. Used to encode queries and document chunks.</p>
+  </article>
+  <article class="card">
+    <h2 class="card-title">Generation model</h2>
+    <p><code class="inline-code">{{ llm_model }}</code> <span class="muted">(Ollama)</span></p>
+    <p class="card-meta">Invoked locally via the Ollama CLI. Install the same tag with <code class="inline-code">ollama pull {{ llm_model }}</code>.</p>
+  </article>
+</div>
+
+<section class="panel panel-wide">
+  <h2 class="panel-title">Ollama service</h2>
+  <p class="panel-lead">Health is checked over HTTP to match what the stack needs at runtime.</p>
+  <dl class="stat-list stat-list-block" id="settings-health-dl">
+    <dt>Configured host</dt>
+    <dd><code class="inline-code">{{ ollama_host }}</code></dd>
+    <dt>Status</dt>
+    <dd id="settings-health-status">Checking…</dd>
+    <dt>Detail</dt>
+    <dd id="settings-health-detail" class="muted">—</dd>
+  </dl>
+  <p class="field-hint">Override with environment variable <code class="inline-code">OLLAMA_HOST</code> (example: <code class="inline-code">http://127.0.0.1:11434</code>), then restart the server.</p>
+</section>
+
+<section class="panel panel-wide">
+  <h2 class="panel-title">Appearance</h2>
+  <p class="panel-lead">Use the <strong>Light</strong> / <strong>Dark</strong> control in the top bar. Your choice is saved in this browser.</p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='settings.js') }}" defer></script>
+{% endblock %}

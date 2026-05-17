@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Architecture — DocQuery{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <h1 class="page-title">System architecture</h1>
+  <p class="page-subtitle">End-to-end flow for local PDF question answering.</p>
+</section>
+
+<div class="doc-columns">
+  <section class="panel panel-wide">
+    <h2 class="panel-title">1. Ingestion</h2>
+    <p>PDFs are read with PyMuPDF, normalized to plain text, then split into overlapping character windows (chunks). Each chunk becomes one row in the vector store.</p>
+  </section>
+  <section class="panel panel-wide">
+    <h2 class="panel-title">2. Embeddings &amp; index</h2>
+    <p>Sentence Transformers embed every chunk. Vectors are stored in a FAISS <code class="inline-code">IndexFlatL2</code> for exact nearest-neighbour search at query time.</p>
+  </section>
+  <section class="panel panel-wide">
+    <h2 class="panel-title">3. Retrieval</h2>
+    <p>Your question is embedded with the same model. The top‑k closest chunks (configurable in Workspace) are concatenated into a single context block.</p>
+  </section>
+  <section class="panel panel-wide">
+    <h2 class="panel-title">4. Generation</h2>
+    <p>Context and question are sent to Ollama (<code class="inline-code">{{ llm_model }}</code>). The model must follow the policy in the prompt: answer only from context or decline.</p>
+  </section>
+</div>
+
+<section class="panel panel-wide diagram-panel">
+  <h2 class="panel-title">Data flow</h2>
+  <pre class="diagram">PDF ──► text ──► chunks ──► embeddings ──► FAISS
+                                      ▲              │
+                                      │              │ top‑k
+                                      └── query ─────┘
+                                              │
+                                              ▼
+                                        Ollama (LLM)
+                                              │
+                                              ▼
+                                         answer + sources</pre>
+</section>
+{% endblock %}

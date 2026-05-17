@@ -1,4 +1,4 @@
-streamlit
+flask
 faiss-cpu
 sentence-transformers
 pymupdf
