@@ -28,10 +28,10 @@
     <div class="topbar-inner">
       <div class="topbar-brand">
         <a href="{{ url_for('dashboard') }}" class="brand-link">
-          <span class="logo" aria-hidden="true"></span>
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="DocQuery Logo" class="logo-img">
           <div class="topbar-brand-text">
             <span class="topbar-title">DocQuery</span>
-            <span class="topbar-tagline">Local document Q&amp;A</span>
+            <span class="topbar-tagline">Local RAG Chatbot</span>
           </div>
         </a>
       </div>
@@ -61,7 +61,7 @@
 
   <footer class="site-footer">
     <div class="site-footer-inner">
-      <p class="site-footer-meta">DocQuery · local RAG · FAISS · Sentence Transformers · Ollama</p>
+      <p class="site-footer-meta">DocQuery — Fully Local & Private RAG Chatbot</p>
     </div>
   </footer>
 

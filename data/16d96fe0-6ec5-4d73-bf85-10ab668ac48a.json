@@ -1,0 +1,13 @@
+{
+  "doc_meta": {
+    "filename": "AI_assignment_1.pdf",
+    "indexed_at": "2026-05-17T15:53:15.870872+00:00",
+    "chunk_count": 4,
+    "page_count": 1,
+    "char_count": 924
+  },
+  "chat_history": [],
+  "retrieval_k": 5,
+  "selected_model": "llama3.1:8b",
+  "last_updated": "2026-05-17T15:53:15.870872+00:00"
+}

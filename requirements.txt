@@ -2,3 +2,4 @@ flask
 faiss-cpu
 sentence-transformers
 pymupdf
+ollama>=0.4.0

@@ -1,41 +1,78 @@
 {% extends "base.html" %}
 {% block title %}Architecture — DocQuery{% endblock %}
+
 {% block content %}
 <section class="page-hero">
-  <h1 class="page-title">System architecture</h1>
-  <p class="page-subtitle">End-to-end flow for local PDF question answering.</p>
+  <h1 class="page-title">How DocQuery Works</h1>
+  <p class="page-subtitle">A simple, fully local Retrieval-Augmented Generation (RAG) system</p>
 </section>
 
 <div class="doc-columns">
+
   <section class="panel panel-wide">
-    <h2 class="panel-title">1. Ingestion</h2>
-    <p>PDFs are read with PyMuPDF, normalized to plain text, then split into overlapping character windows (chunks). Each chunk becomes one row in the vector store.</p>
+    <h2 class="panel-title">1. Document Ingestion</h2>
+    <p>When you upload a PDF:</p>
+    <ul class="feature-list">
+      <li>PyMuPDF extracts text from all pages</li>
+      <li>Text is cleaned and split into smart overlapping chunks</li>
+      <li>Each chunk preserves context for better answers</li>
+    </ul>
   </section>
+
   <section class="panel panel-wide">
-    <h2 class="panel-title">2. Embeddings &amp; index</h2>
-    <p>Sentence Transformers embed every chunk. Vectors are stored in a FAISS <code class="inline-code">IndexFlatL2</code> for exact nearest-neighbour search at query time.</p>
+    <h2 class="panel-title">2. Embeddings & Vector Store</h2>
+    <p>Each chunk is converted into a numerical vector using <strong>{{ embed_model }}</strong>.</p>
+    <p>These vectors are stored in <strong>FAISS</strong> (local vector database) for fast similarity search.</p>
   </section>
+
   <section class="panel panel-wide">
-    <h2 class="panel-title">3. Retrieval</h2>
-    <p>Your question is embedded with the same model. The top‑k closest chunks (configurable in Workspace) are concatenated into a single context block.</p>
+    <h2 class="panel-title">3. Retrieval (Semantic Search)</h2>
+    <p>When you ask a question:</p>
+    <ul class="feature-list">
+      <li>Your question is converted into a vector</li>
+      <li>FAISS finds the most relevant chunks from your document</li>
+      <li>You can control how many chunks are retrieved in <strong>Settings</strong></li>
+    </ul>
   </section>
+
   <section class="panel panel-wide">
-    <h2 class="panel-title">4. Generation</h2>
-    <p>Context and question are sent to Ollama (<code class="inline-code">{{ llm_model }}</code>). The model must follow the policy in the prompt: answer only from context or decline.</p>
+    <h2 class="panel-title">4. Answer Generation</h2>
+    <p>The retrieved chunks + your question are sent to the selected Ollama model (<strong>{{ llm_model }}</strong>).</p>
+    <p>The model generates an answer based only on your document (with source awareness).</p>
   </section>
+
 </div>
 
 <section class="panel panel-wide diagram-panel">
-  <h2 class="panel-title">Data flow</h2>
-  <pre class="diagram">PDF ──► text ──► chunks ──► embeddings ──► FAISS
-                                      ▲              │
-                                      │              │ top‑k
-                                      └── query ─────┘
-                                              │
-                                              ▼
-                                        Ollama (LLM)
-                                              │
-                                              ▼
-                                         answer + sources</pre>
+  <h2 class="panel-title">Complete Data Flow</h2>
+  <pre class="diagram">
+PDF Upload
+    ↓
+Text Extraction (PyMuPDF)
+    ↓
+Chunking (Overlapping)
+    ↓
+Embedding ({{ embed_model }})
+    ↓
+FAISS Vector Index
+    ↓
+User Question → Embedding → Similarity Search → Top-k Chunks
+    ↓
+Context + Question → Ollama LLM
+    ↓
+Final Answer + Sources
+  </pre>
 </section>
+
+<section class="panel panel-wide">
+  <h2 class="panel-title">Key Benefits</h2>
+  <div class="benefits-grid">
+    <div class="benefit-item">✅ 100% Local & Private</div>
+    <div class="benefit-item">✅ No internet required after setup</div>
+    <div class="benefit-item">✅ Your data never leaves your PC</div>
+    <div class="benefit-item">✅ Switch models anytime</div>
+    <div class="benefit-item">✅ Persistent memory (documents saved)</div>
+  </div>
+</section>
+
 {% endblock %}

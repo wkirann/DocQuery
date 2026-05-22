@@ -1,49 +1,59 @@
-import shutil
-import subprocess
+# llm.py
+import ollama
+import requests
 
-OLLAMA_MODEL = "llama3"
+DEFAULT_MODEL = "llama3.1:8b"   # Best one you have
+
+def get_available_models():
+    """Reliable way to get all local Ollama models"""
+    models = set()
+
+    # Method 1: Using ollama library
+    try:
+        response = ollama.list()
+        for model in response.get('models', []):
+            models.add(model['name'])
+    except:
+        pass
+
+    # Method 2: Direct HTTP call (more reliable)
+    try:
+        r = requests.get("http://localhost:11434/api/tags", timeout=8)
+        if r.status_code == 200:
+            data = r.json()
+            for model in data.get('models', []):
+                models.add(model['name'])
+    except:
+        pass
+
+    # Final fallback
+    if not models:
+        models = {"llama3:latest", "llama3.1:8b"}
+
+    return sorted(list(models))
 
 
-def ask_llm(context, question):
-    prompt = f"""
-You are a helpful assistant.
+def ask_llm(context: str, question: str, model: str = None):
+    if model is None:
+        model = DEFAULT_MODEL
 
+    prompt = f"""You are a helpful, accurate assistant.
 Use ONLY the provided context to answer the question.
-If the answer is not in the context, say:
-"I don't know based on the document."
-
-Give a clear and concise answer.
+If the answer is not in the context, say: "I don't know based on the document."
 
 Context:
 {context}
 
-Question:
-{question}
-"""
+Question: {question}
 
-    if not shutil.which("ollama"):
-        return (
-            "Ollama is not available on this system PATH. "
-            "Install Ollama from https://ollama.com and try again."
-        )
+Answer:"""
 
     try:
-        result = subprocess.run(
-            ["ollama", "run", OLLAMA_MODEL],
-            input=prompt.encode(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=180,
+        response = ollama.chat(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            stream=False
         )
-    except subprocess.TimeoutExpired:
-        return "The model stopped responding in time. Try a shorter question or check Ollama."
-    except OSError as e:
-        return f"Could not run Ollama: {e}"
-
-    out = result.stdout.decode(errors="replace").strip()
-    if result.returncode != 0:
-        err = result.stderr.decode(errors="replace").strip()
-        hint = f" {err}" if err else ""
-        return f"The model returned an error (code {result.returncode}).{hint}"
-
-    return out or "(Empty response from model.)"
+        return response['message']['content'].strip()
+    except Exception as e:
+        return f"Error with model '{model}': {str(e)}"

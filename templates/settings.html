@@ -1,27 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Settings — DocQuery{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <h1 class="page-title">Settings</h1>
-  <p class="page-subtitle">Models, connectivity, and appearance.</p>
+  <p class="page-subtitle">Configure models and preferences</p>
 </section>
 
 <div class="card-grid card-grid-2">
+  <!-- Embedding Model -->
   <article class="card">
-    <h2 class="card-title">Embedding model</h2>
+    <h2 class="card-title">Embedding Model</h2>
     <p><code class="inline-code">{{ embed_model }}</code></p>
-    <p class="card-meta">Loaded at server start. Used to encode queries and document chunks.</p>
+    <p class="card-meta">Used for document chunking and semantic search. Fixed at startup.</p>
   </article>
+
+  <!-- Generation Model -->
   <article class="card">
-    <h2 class="card-title">Generation model</h2>
-    <p><code class="inline-code">{{ llm_model }}</code> <span class="muted">(Ollama)</span></p>
-    <p class="card-meta">Invoked locally via the Ollama CLI. Install the same tag with <code class="inline-code">ollama pull {{ llm_model }}</code>.</p>
+    <h2 class="card-title">Generation Model (LLM)</h2>
+    <div class="form-group">
+      <select id="llm-model-select" class="model-select">
+        {% for m in available_models %}
+          <option value="{{ m }}" {% if m == default_llm_model %}selected{% endif %}>
+            {{ m }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="card-meta">Choose any model you have pulled in Ollama</p>
+
+    <div class="model-notes">
+      <small>
+        <strong>💡 Tips for choosing model:</strong><br>
+        • <strong>llama3.1:8b</strong> → Best balance (Recommended)<br>
+        • <strong>llama3:latest</strong> → Good but older version<br>
+        • <strong>gemma2:2b</strong> → Faster but less accurate<br>
+      </small>
+    </div>
   </article>
 </div>
 
 <section class="panel panel-wide">
-  <h2 class="panel-title">Ollama service</h2>
-  <p class="panel-lead">Health is checked over HTTP to match what the stack needs at runtime.</p>
+  <h2 class="panel-title">Ollama Service</h2>
   <dl class="stat-list stat-list-block" id="settings-health-dl">
     <dt>Configured host</dt>
     <dd><code class="inline-code">{{ ollama_host }}</code></dd>
@@ -30,14 +50,50 @@
     <dt>Detail</dt>
     <dd id="settings-health-detail" class="muted">—</dd>
   </dl>
-  <p class="field-hint">Override with environment variable <code class="inline-code">OLLAMA_HOST</code> (example: <code class="inline-code">http://127.0.0.1:11434</code>), then restart the server.</p>
 </section>
 
 <section class="panel panel-wide">
-  <h2 class="panel-title">Appearance</h2>
-  <p class="panel-lead">Use the <strong>Light</strong> / <strong>Dark</strong> control in the top bar. Your choice is saved in this browser.</p>
+  <h2 class="panel-title">Retrieval Settings</h2>
+  <label for="retrieval-k">Number of chunks to retrieve:</label>
+  <input type="range" id="retrieval-k" min="1" max="12" value="5" class="slider">
+  <span id="k-value">5</span>
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='settings.js') }}" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modelSelect = document.getElementById('llm-model-select');
+    const kSlider = document.getElementById('retrieval-k');
+    const kValue = document.getElementById('k-value');
+
+    // Live update for slider
+    kSlider.addEventListener('input', () => {
+        kValue.textContent = kSlider.value;
+    });
+
+    // Save retrieval k
+    kSlider.addEventListener('change', () => {
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ retrieval_k: parseInt(kSlider.value) })
+        });
+    });
+
+    // Switch LLM Model
+    modelSelect.addEventListener('change', () => {
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ llm_model: modelSelect.value })
+        })
+        .then(() => {
+            alert(`✅ Switched to model: ${modelSelect.value}`);
+        })
+        .catch(() => alert('❌ Failed to switch model'));
+    });
+});
+</script>
 {% endblock %}
